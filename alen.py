@@ -16,19 +16,35 @@ def get_greeting():
     else:
         return "Good evening sir"
 
+
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
 def get_weather(city):
-    api_key = "abcdabhi123"  # Replace with your actual API key
+    api_key = "9f61445fdb1f89dd29123d90b797c80c"  # Replace with your actual API key
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     response = requests.get(url)
-    print(response.text)  # Print API response for debugging
     data = response.json()
+    
     if data["cod"] == 200:
         weather_description = data["weather"][0]["description"]
         temperature = data["main"]["temp"]
-        return f"The weather today in {city} is {weather_description}. The temperature is {temperature} degrees Celsius."
+        weather_report = f"The weather today in {city} is {weather_description}. The temperature is {temperature} degrees Celsius."
+    elif data["cod"] == "404":
+        weather_report = f"City '{city}' not found. Please check the city name."
     else:
-        return "Sorry, I couldn't retrieve the weather information."
+        weather_report = "Sorry, I couldn't retrieve the weather information."
 
+    return weather_report
+# # Example usage:
+# city = "Hubli"  # Replace with the city you want to get weather information for
+# weather_info = get_weather(city)
+# print(weather_info)  # Output the weather information
+
+# # Speak the weather information
+# speak(weather_info)
 
 def get_joke():
     url = "https://v2.jokeapi.dev/joke/Any"
@@ -122,8 +138,11 @@ def main():
         query = recognize_speech()
         if query is not None:
             if "weather" in query:
-                city = "your_city_name"  # Set your city name here
+                # Extract the city from the query
+                city = query.replace("weather in", "").strip()
                 weather_report = get_weather(city)
+                print(weather_report)   #Output the weather information
+                 
                 engine.say(weather_report)
                 engine.runAndWait()
             elif "search" in query:
